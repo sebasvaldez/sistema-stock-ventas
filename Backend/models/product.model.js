@@ -7,7 +7,8 @@ const productSchema = new mongoose.Schema(
       required: true,
       trim: true,
     },
-    description: {
+    
+    brand:{
       type: String,
       required: true,
       trim: true,
@@ -15,7 +16,12 @@ const productSchema = new mongoose.Schema(
     category: {
       type: String,
       required: true,
-      enum: ["Phone", "Accesories"],
+      enum: ["Smartphone", "Accesories"],
+    },
+    description: {
+      type: String,
+      required: true,
+      trim: true,
     },
     price: {
       type: Number,
@@ -27,10 +33,14 @@ const productSchema = new mongoose.Schema(
       required: true,
       min: 0,
     },
-    image: {
+    imageUrl: {
       type: String,
 
       trim: true,
+    },
+    isActive:{
+      type: Boolean,
+      default: true,
     },
     provider: {
       type: mongoose.Schema.Types.ObjectId,

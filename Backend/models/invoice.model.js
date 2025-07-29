@@ -2,25 +2,21 @@ import mongoose from "mongoose";
 
 const invoiceSchema = new mongoose.Schema(
   {
-    number: { type: String },
-    sale: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "Sale",
+    saleId: { type: mongoose.Schema.Types.ObjectId, ref: "Sale", required: true },
+    invoiceNumber: { type: String, required: true, unique: true },
+    date: { type: Date, default: Date.now },
+    paymentMethod: {
+      type: String,
+      enum: ["efectivo", "tarjeta", "transferencia"],
       required: true,
-    },
-    client: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "Client",
-      required: true,
-    },
-    date: {
-      type: Date,
-      default: Date.now,
     },
     totalAmount: {
       type: Number,
       required: true,
-      min: 0,
+    },
+    clientName: {
+      type: String,
+      required: true,
     },
   },
   {

@@ -29,35 +29,63 @@ export const registerUser = async (req, res) => {
   }
 };
 
-export const loginUser = (req, res) => {
+
+export const loginUser = async (req, res) => {
   const { email, password } = req.body;
 
   try {
-    const user = User.findOne({ email });
-    if (!user)
-      return res.status(400).json({ message: "Usuario no encontrado" });
-    const isMatch = bcrypt.compareSync(password, user.password);
-    if (!isMatch)
-      return res.status(400).json({ message: "Contraseña incorrecta" });
+    const user = await User.findOne({ email }); // <-- contraseña incluida
+    if (!user) return res.status(400).json({ message: "Credenciales inválidas." });
 
-    res.json({
-      _id: user._id,
-      name: user.name,
-      role: user.role,
-      token: generateToken(user),
-    });
-  } catch (error) {
-    console.error(error);
-    res.status(500).json({ message: "Error al iniciar sesión" });
+    const match = await bcrypt.compare(password, user.password);
+    if (!match) return res.status(400).json({ message: "Credenciales inválidas." });
+
+    res
+      .cookie("token", generateToken(user), {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === "production",
+        sameSite: "Strict",
+        maxAge: 7 * 24 * 60 * 60 * 1000
+      })
+      .json({
+        _id: user._id,
+        name: user.name,
+        role: user.role
+      });
+  } catch (err) {
+    res.status(500).json({ message: err.message });
   }
 };
 
-export const getAllUsers = (req, res) => {
+
+export const getAllUsers = async (req, res) => {
   try {
-    const users = User.find().select("-password");
-    res.json(users);
+    const users = await User.find().select("-password");
+
+    res.status(200).json(users);
+    
   } catch (error) {
     console.error(error);
     res.status(500).json({ message: "Error al obtener los usuarios" });
   }
 };
+
+export const toggleUserStatus = async (req,res)=>{
+
+  try {
+    const{id}= req.params
+  const {active}= req.body
+
+  const user =await User.findByIdAndUpdate(id, {active}, {new: true}).select("-password");
+  if(!user) return res.status(404).json({message: "Usuario no encontrado"});
+
+  res.status(200).json({message:`Usuario ${active ? "activado" : "desactivado"} correctamente`, user});
+    
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "Error al actualizar el estado del usuario" });
+  }
+
+
+}
+

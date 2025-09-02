@@ -1,6 +1,9 @@
+import { DashboardLayout } from "../layout/DashboardLayout";
+
 
 export const DashboardPage = () => {
   return (
-    <div>DashboardPage</div>
+    <DashboardLayout/>
   )
 }
+
